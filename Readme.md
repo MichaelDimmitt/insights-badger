@@ -1,4 +1,4 @@
-## what order do I run everything in?
+## What order do I run everything in?
 
 Run these from inside `~/insights-badger/`.
 
