@@ -1,0 +1,44 @@
+#!/usr/bin/env expect -f
+# Drive the Claude Code TUI to run /insights and wait for report.html to update.
+# Usage: run-insights-tui.exp [timeout_seconds]
+
+set timeout [expr {[llength $argv] > 0 ? [lindex $argv 0] : 90}]
+set report "$env(HOME)/.claude/usage-data/report.html"
+
+set before 0
+if {[file exists $report]} {
+    set before [file mtime $report]
+}
+
+log_user 0
+spawn claude
+
+# Wait for TUI input to be ready. The screen may render before the input
+# box can accept keystrokes, so this needs to be generous.
+sleep 15
+send "/insights\r"
+# Give /insights time to actually fire after submit.
+sleep 2
+
+# Poll for report.html mtime change.
+set deadline [expr {[clock seconds] + $timeout}]
+while {[clock seconds] < $deadline} {
+    if {[file exists $report]} {
+        set after [file mtime $report]
+        if {$after != $before} {
+            # Give the writer a beat to finish flushing.
+            sleep 1
+            send "/exit\r"
+            sleep 1
+            send "\003"
+            exit 0
+        }
+    }
+    sleep 1
+}
+
+# Timed out without seeing report regenerate.
+send "\003"
+sleep 1
+send "\003"
+exit 2
