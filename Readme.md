@@ -33,7 +33,7 @@ This repo is the un-fragile, un-tedious version. We park every project except on
 ## Quickstart
 
 ```bash
-git clone https://github.com/<you>/insights-badger ~/insights-badger
+git clone https://github.com/MichaelDimmitt/insights-badger ~/insights-badger
 cd ~/insights-badger
 
 ./scripts/list-projects.sh           # see what's there
