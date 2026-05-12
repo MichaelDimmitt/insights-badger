@@ -33,6 +33,7 @@ This repo is the un-fragile, un-tedious version. We park every project except on
 ## Quickstart
 
 ```bash
+{
 git clone https://github.com/MichaelDimmitt/insights-badger ~/insights-badger
 cd ~/insights-badger
 
@@ -41,6 +42,7 @@ cd ~/insights-badger
 ./scripts/insights-per-project.sh    # the magic loop — get a coffee
 ./scripts/open.sh results/*          # admire your collection of reports
 ./scripts/restore-all.sh             # back to normal /insights
+}
 ```
 
 That's it. Everything below is detail.
