@@ -1,0 +1,96 @@
+name: Bug report
+description: Something broke. Help us reproduce it.
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug. The more specific you are, the faster this gets fixed.
+        Please fill out the OS section — most bugs in this toolkit are OS-specific (`stat -f` on macOS vs `stat -c` on Linux, expect/TUI quirks, etc.).
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      description: e.g. macOS 15.2, Ubuntu 24.04, WSL2 on Windows 11
+      placeholder: macOS 15.2 (Sequoia)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: shell
+    attributes:
+      label: Shell
+      options:
+        - bash
+        - zsh
+        - fish
+        - other (please mention in description)
+    validations:
+      required: true
+
+  - type: input
+    id: claude-code-version
+    attributes:
+      label: Claude Code version
+      description: Output of `claude --version`
+      placeholder: e.g. 2.4.1
+    validations:
+      required: true
+
+  - type: input
+    id: expect-version
+    attributes:
+      label: expect version (if a TUI driver issue)
+      description: Output of `expect -v`. Leave blank if not relevant.
+      placeholder: expect version 5.45.4
+
+  - type: dropdown
+    id: script
+    attributes:
+      label: Which script broke?
+      options:
+        - backup-projects.sh
+        - restore-one.sh
+        - restore-all.sh
+        - insights-per-project.sh
+        - list-projects.sh
+        - open.sh
+        - run-insights-tui.exp
+        - other / not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you run and what went wrong? Paste full error output (please redact any project paths you don't want public).
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Run `./scripts/backup-projects.sh`
+        2. Run `./scripts/insights-per-project.sh`
+        3. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else?
+      description: Screenshots, weird theories, links to related issues, etc.

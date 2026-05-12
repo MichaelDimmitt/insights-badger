@@ -48,7 +48,7 @@ fi
 
 name="${matches[0]}"
 
-echo "=== debug run for $name ==="
+echo "=== run for $name ==="
 mv "$BACKUP_PROJECTS/$name" "$LIVE_PROJECTS/$name"
 
 rm -f "$LIVE_USAGE/session-meta"/*.json 2>/dev/null || true
@@ -56,8 +56,8 @@ rm -f "$LIVE_USAGE/facets"/*.json 2>/dev/null || true
 
 before=$(stat -f "%m" "$REPORT_SRC" 2>/dev/null || echo 0)
 echo "report.html mtime before: $before"
-echo "--- launching debug TUI driver ---"
-~/insights-badger/run-insights-tui.exp || echo "  (expect exited non-zero)"
+echo "--- launching TUI driver ---"
+~/insights-badger/scripts/run-insights-tui.exp || echo "  (expect exited non-zero)"
 after=$(stat -f "%m" "$REPORT_SRC" 2>/dev/null || echo 0)
 echo "report.html mtime after:  $after"
 
@@ -70,4 +70,4 @@ fi
 
 echo
 echo "Project left LIVE at $LIVE_PROJECTS/$name."
-echo "Re-park everything with: ~/insights-badger/backup-projects.sh"
+echo "Re-park everything with: ~/insights-badger/scripts/backup-projects.sh"
