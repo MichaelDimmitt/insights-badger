@@ -1,48 +1,44 @@
 #!/usr/bin/env expect -f
-# Drive the Claude Code TUI to run /insights and wait for report.html to update.
-# Usage: run-insights-tui.exp [timeout_seconds]
+# Debug version — shows everything Claude prints. Run manually to see what's happening.
 
-set timeout [expr {[llength $argv] > 0 ? [lindex $argv 0] : 90}]
+set timeout 60
 set report "$env(HOME)/.claude/usage-data/report.html"
 
 set before 0
 if {[file exists $report]} {
     set before [file mtime $report]
 }
+puts "report.html mtime before: $before"
 
 log_user 1
-# Force a sane terminal size and merge stderr so we see everything.
-set env(TERM) "xterm-256color"
-set env(COLUMNS) "120"
-set env(LINES) "40"
-stty rows 40 cols 120 < /dev/tty
-spawn -noecho sh -c "claude 2>&1"
+spawn claude
 
-# Wait for TUI input to be ready. The screen may render before the input
-# box can accept keystrokes, so this needs to be generous.
-sleep 15
+puts "\n--- waiting 8s for TUI to settle ---"
+sleep 8
+
+puts "\n--- sending /insights ---"
 send "/insights\r"
-# Give /insights time to actually fire after submit.
-sleep 2
 
-# Poll for report.html mtime change.
-set deadline [expr {[clock seconds] + $timeout}]
+puts "\n--- watching for 180s ---"
+set deadline [expr {[clock seconds] + 180}]
 while {[clock seconds] < $deadline} {
     if {[file exists $report]} {
         set after [file mtime $report]
         if {$after != $before} {
-            # Give the writer a beat to finish flushing.
-            sleep 1
+            puts "\n>>> report.html mtime changed: $before -> $after"
+            sleep 2
             send "/exit\r"
-            sleep 1
-            send "\003"
+            sleep 2
             exit 0
         }
     }
-    sleep 1
+    expect {
+        -timeout 1
+        timeout {}
+    }
 }
 
-# Timed out without seeing report regenerate.
+puts "\n>>> timed out, report.html unchanged"
 send "\003"
 sleep 1
 send "\003"
