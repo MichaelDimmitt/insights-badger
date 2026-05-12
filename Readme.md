@@ -45,6 +45,8 @@ cd ~/insights-badger
 
 That's it. Everything below is detail.
 
+**Full step-by-step:** [docs/WORKFLOW.md](docs/WORKFLOW.md) — the same flow broken into one-time setup / loop vs single-project / exit, plus directory layout.
+
 **Dependencies:** Needs `bash`, `expect`, and the `claude` CLI. macOS works out of the box; Linux/WSL needs `apt install expect`; Windows needs WSL. Full per-OS install table and known quirks in [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md).
 
 ## ⚠️ Heads up — this uses your usage budget
