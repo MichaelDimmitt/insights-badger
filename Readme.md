@@ -20,21 +20,14 @@ Run these from inside `~/insights-badger/`.
   1. `./list-projects.sh` — see what's live vs. parked.
   2. `./backup-projects.sh` — parks every project under `~/backup/projects/` and clears `usage-data/` caches. `/insights` now has nothing to analyze.
 
-#### Per project (manual)
-  3. `./restore-one.sh <project-substring>` — moves that project back into `~/.claude/projects/` and clears `usage-data/` so `/insights` rebuilds clean.
-  4. Run `/insights` in Claude Code.
-  5. `./backup-projects.sh` — parks everything again to start clean for the next.
-  6. Repeat 3–5 for the next project.
+#### All projects (automated loop) — recommended
+  3. `./insights-per-project.sh` — for every parked project: restore it, clear `usage-data/`, drive `/insights` via the expect TUI script with full output streaming to your terminal, copy `report.html` to `~/insights-badger/results/<encoded-name>.html` (e.g. `-Users-michaeldimmitt-scripts.html`), re-park it. Set `STOP_ON_FAIL=1 ./insights-per-project.sh` to halt on the first failure and leave that project live so you can re-run the expect script manually.
 
-#### 3. alt — automated loop (🚧 — TUI driver not currently working 🚧)
-  `./insights-per-project.sh` — does steps 3–5 for every project in `~/backup/projects/`, driving the Claude Code TUI via `expect` (`run-insights-tui.exp`) to fire `/insights` and waiting for `report.html` to regenerate. Each report is copied to `~/insights-badger/results/<encoded-name>.html` (e.g. `-Users-michaeldimmitt-scripts.html`). Default per-project timeout is 120s; override with `TIMEOUT=240 ./insights-per-project.sh`.
-
-#### Debugging the TUI driver
-  - `./debug-one.sh <project-substring>` — restores one parked project, clears `usage-data/`, and runs the VERBOSE expect script (`run-insights-tui-debug.exp`) with full TUI output streamed to your terminal. Use this to see what the driver is actually doing when `report.html` won't update. The project is left LIVE afterwards — re-park with `./backup-projects.sh` when done.
-  - `./debug-insights-per-project.sh` — same loop as `insights-per-project.sh` but uses the VERBOSE expect driver. Watch each project's TUI run live across the whole set. Set `STOP_ON_FAIL=1 ./debug-insights-per-project.sh` to halt on the first failure and leave that project live so you can re-run the expect script against it.
+#### One project at a time (manual)
+  3. `./restore-one.sh <project-substring>` — restores one parked project, clears `usage-data/`, and runs `/insights` against it via the expect TUI driver. The report is saved to `~/insights-badger/results/` and the project is left LIVE so you can poke around. Re-park with `./backup-projects.sh` when done.
 
 #### When done
-  7. `./restore-all.sh` — moves every parked project back into `~/.claude/projects/` and clears `usage-data/` so normal `/insights` works again.
+  4. `./restore-all.sh` — moves every parked project back into `~/.claude/projects/` and clears `usage-data/` so the normal multi-project `/insights` works again. `insights-per-project.sh` re-parks each project after running it, so after the loop everything is still hidden — this is the command that exits the toolkit.
 
   You can run `./list-projects.sh` at any point — it scans both locations.
 
