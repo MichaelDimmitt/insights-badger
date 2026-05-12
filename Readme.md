@@ -90,6 +90,8 @@ PRs welcome on any of these:
 
 - **Facet cache reuse.** Don't nuke `~/.claude/usage-data/facets/` between projects — facets are keyed by session ID and would be reused across loop iterations. Save Haiku tokens. See [docs/USAGE.md](docs/USAGE.md).
 - **Aggregate report.** Stitch every `results/*.html` into one index page with per-project tiles and rolled-up friction stats across the whole portfolio.
+- **Aggregate report(continued).** Read through each `results/*.html` and report back which ones have the best signals and are most likely to be high quality. 
+- **Aggregate report(continued).** Also look at all the action items and aggregate them gathering the various claude artifacts and putting them into a claude-next-steps folder with subfolders like skills or files like claude.md.
 - **`--project` flag stub.** A wrapper that takes a substring and behaves like `/insights --project <substring>` would, so you can stop thinking about backup/restore at all.
 - **CI mode.** Run weekly, drop reports into a dated folder, diff against last week's friction patterns. "Are we getting better or worse at working with Claude?"
 - **Linux/WSL hardening.** The current scripts use `stat -f` (BSD/macOS). A `stat -c` fallback for GNU coreutils would un-break this on Linux.
