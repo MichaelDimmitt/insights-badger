@@ -45,6 +45,16 @@ cd ~/insights-badger
 
 That's it. Everything below is detail.
 
+**Dependencies:** Needs `bash`, `expect`, and the `claude` CLI. macOS works out of the box; Linux/WSL needs `apt install expect`; Windows needs WSL. Full per-OS install table and known quirks in [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md).
+
+## ⚠️ Heads up — this uses your usage budget
+
+`/insights` runs Claude Haiku against every session to extract "facets" (qualitative tags). Because this toolkit clears the `~/.claude/usage-data/facets/` cache between every project, **every project in the loop re-pays for facet extraction from scratch** — no cross-project reuse.
+
+Rough math: if you have N projects with ~M sessions each, expect N × M Haiku calls per full loop, where a normal `/insights` run would pay once and cache. Haiku is cheap so this is usually pennies, but if you're on a metered API plan or close to a Claude.ai subscription quota, **the loop can chew through your budget faster than you expect** — especially the first run on a fresh machine. Subsequent runs are no cheaper because the cache is wiped each time.
+
+If this matters to you: see [docs/NOTES.md](docs/NOTES.md) for the full tradeoff and a sketch of how the loop could be changed to keep the facet cache between iterations.
+
 ## The commands
 
 | Script | What it does |
