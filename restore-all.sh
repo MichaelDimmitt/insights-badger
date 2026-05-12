@@ -1,20 +1,26 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-BACKUP="$HOME/backup"
-DEST="$HOME/.claude/usage-data"
+# Move every parked project from ~/backup/projects/ back into ~/.claude/projects/
+# and clear usage-data so /insights rebuilds across the full set.
 
-mkdir -p "$DEST/session-meta" "$DEST/facets"
+LIVE_PROJECTS="$HOME/.claude/projects"
+LIVE_USAGE="$HOME/.claude/usage-data"
+BACKUP_PROJECTS="$HOME/backup/projects"
+
+mkdir -p "$LIVE_PROJECTS" "$LIVE_USAGE/session-meta" "$LIVE_USAGE/facets"
 
 shopt -s nullglob
-for f in "$BACKUP/session-meta"/*.json; do
-  mv "$f" "$DEST/session-meta/"
-done
-for f in "$BACKUP/facets"/*.json; do
-  mv "$f" "$DEST/facets/"
+restored=0
+for d in "$BACKUP_PROJECTS"/*/; do
+  name=$(basename "$d")
+  mv "$d" "$LIVE_PROJECTS/$name"
+  restored=$((restored + 1))
 done
 
-echo "session-meta restored: $(ls "$DEST/session-meta" | wc -l | tr -d ' ') files"
-echo "facets restored:       $(ls "$DEST/facets" | wc -l | tr -d ' ') files"
-echo "remaining in backup/session-meta: $(ls "$BACKUP/session-meta" 2>/dev/null | wc -l | tr -d ' ')"
-echo "remaining in backup/facets:       $(ls "$BACKUP/facets" 2>/dev/null | wc -l | tr -d ' ')"
+rm -f "$LIVE_USAGE/session-meta"/*.json 2>/dev/null || true
+rm -f "$LIVE_USAGE/facets"/*.json 2>/dev/null || true
+
+echo "projects restored:        $restored"
+echo "projects remaining backup:$(find "$BACKUP_PROJECTS" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l | tr -d ' ')"
+echo "usage-data cleared — run /insights to regenerate."

@@ -10,8 +10,13 @@ if {[file exists $report]} {
     set before [file mtime $report]
 }
 
-log_user 0
-spawn claude
+log_user 1
+# Force a sane terminal size and merge stderr so we see everything.
+set env(TERM) "xterm-256color"
+set env(COLUMNS) "120"
+set env(LINES) "40"
+stty rows 40 cols 120 < /dev/tty
+spawn -noecho sh -c "claude 2>&1"
 
 # Wait for TUI input to be ready. The screen may render before the input
 # box can accept keystrokes, so this needs to be generous.

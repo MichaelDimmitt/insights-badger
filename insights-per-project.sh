@@ -1,43 +1,50 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-LIVE="$HOME/.claude/usage-data"
-BACKUP="$HOME/backup"
-REPORTS="$BACKUP/reports"
-REPORT_SRC="$LIVE/report.html"
+# Loop over every parked project in ~/backup/projects/. For each:
+#   - move it back into ~/.claude/projects/
+#   - clear usage-data so /insights rebuilds clean
+#   - run /insights via the expect TUI driver
+#   - copy the regenerated report.html to ~/backup/reports/report-<slug>.html
+#   - move the project back to ~/backup/projects/
+#
+# Expect driver is independent of the layer fix; if it times out per project,
+# bump the first arg below (currently 120 seconds).
 
-mkdir -p "$REPORTS"
+LIVE_PROJECTS="$HOME/.claude/projects"
+LIVE_USAGE="$HOME/.claude/usage-data"
+BACKUP_PROJECTS="$HOME/backup/projects"
+REPORTS="$HOME/backup/reports"
+REPORT_SRC="$LIVE_USAGE/report.html"
+TIMEOUT="${TIMEOUT:-120}"
 
-if [[ ! -d "$BACKUP/session-meta" ]] || [[ -z "$(ls -A "$BACKUP/session-meta" 2>/dev/null)" ]]; then
-  echo "Nothing in $BACKUP/session-meta. Run ~/insights-badger/backup-usage-data.sh first."
+mkdir -p "$REPORTS" "$LIVE_PROJECTS" "$LIVE_USAGE/session-meta" "$LIVE_USAGE/facets"
+
+if [[ ! -d "$BACKUP_PROJECTS" ]] || [[ -z "$(ls -A "$BACKUP_PROJECTS" 2>/dev/null)" ]]; then
+  echo "Nothing in $BACKUP_PROJECTS. Run backup-projects.sh first."
   exit 1
 fi
 
-projects=$(
-  for f in "$BACKUP/session-meta"/*.json; do
-    sed -n 's/.*"project_path": *"\([^"]*\)".*/\1/p' "$f" | head -1
-  done | sort -u
-)
-
-if [[ -z "$projects" ]]; then
-  echo "No projects found in backup."
-  exit 1
-fi
-
+shopt -s nullglob
 echo "Projects to process:"
-echo "$projects" | sed 's/^/  /'
+for d in "$BACKUP_PROJECTS"/*/; do
+  echo "  $(basename "$d")"
+done
 echo
 
-while IFS= read -r project; do
-  [[ -z "$project" ]] && continue
-  slug=$(echo "$project" | tr '/' '_' | sed 's/^_//')
+for d in "$BACKUP_PROJECTS"/*/; do
+  name=$(basename "$d")
+  slug="${name#-}"
 
-  echo "=== $project ==="
-  ~/insights-badger/restore-one.sh "$project" || { echo "skip: restore failed"; continue; }
+  echo "=== $name ==="
+  mv "$d" "$LIVE_PROJECTS/$name"
+
+  rm -f "$LIVE_USAGE/session-meta"/*.json 2>/dev/null || true
+  rm -f "$LIVE_USAGE/facets"/*.json 2>/dev/null || true
 
   echo "running /insights via TUI ..."
   before=$(stat -f "%m" "$REPORT_SRC" 2>/dev/null || echo 0)
-  ~/insights-badger/run-insights-tui.exp 120 || echo "  (expect script timed out or failed)"
+  ~/insights-badger/run-insights-tui.exp "$TIMEOUT" || echo "  (expect script timed out or failed)"
   after=$(stat -f "%m" "$REPORT_SRC" 2>/dev/null || echo 0)
 
   if [[ "$after" != "$before" ]] && [[ -f "$REPORT_SRC" ]]; then
@@ -47,9 +54,12 @@ while IFS= read -r project; do
     echo "  report.html did NOT change — TUI driver may need tuning"
   fi
 
-  ~/insights-badger/backup-usage-data.sh >/dev/null
+  mv "$LIVE_PROJECTS/$name" "$BACKUP_PROJECTS/$name"
   echo
-done <<< "$projects"
+done
+
+rm -f "$LIVE_USAGE/session-meta"/*.json 2>/dev/null || true
+rm -f "$LIVE_USAGE/facets"/*.json 2>/dev/null || true
 
 echo "Done. Reports in $REPORTS/"
 ls -1 "$REPORTS"
