@@ -55,9 +55,7 @@ That's it. Everything below is detail.
 
 `/insights` runs Claude Haiku against every session to extract "facets" (qualitative tags). Because this toolkit clears the `~/.claude/usage-data/facets/` cache between every project, **every project in the loop re-pays for facet extraction from scratch** — no cross-project reuse.
 
-Rough math: if you have N projects with ~M sessions each, expect N × M Haiku calls per full loop, where a normal `/insights` run would pay once and cache. Haiku is cheap so this is usually pennies, but if you're on a metered API plan or close to a Claude.ai subscription quota, **the loop can chew through your budget faster than you expect** — especially the first run on a fresh machine. Subsequent runs are no cheaper because the cache is wiped each time.
-
-If this matters to you: see [docs/NOTES.md](docs/NOTES.md) for the full tradeoff and a sketch of how the loop could be changed to keep the facet cache between iterations.
+If this matters to you: see [docs/USAGE.md](docs/USAGE.md) for the full tradeoff and a sketch of how the loop could be changed to keep the facet cache between iterations.
 
 ## The commands
 
@@ -73,37 +71,7 @@ If this matters to you: see [docs/NOTES.md](docs/NOTES.md) for the full tradeoff
 
 ## How it works
 
-```
-                     ┌─────────────────────────────────────┐
-                     │  ~/.claude/projects/                │  <- LIVE: what /insights sees
-                     │    -Users-you-fintech-monorepo/     │
-                     │    -Users-you-side-project/         │
-                     └─────────────────────────────────────┘
-                                       │
-                                  backup-projects.sh
-                                       ▼
-                     ┌─────────────────────────────────────┐
-                     │  ~/backup/projects/                 │  <- PARKED: hidden from /insights
-                     │    -Users-you-fintech-monorepo/     │
-                     │    -Users-you-side-project/         │
-                     └─────────────────────────────────────┘
-                                       │
-                            insights-per-project.sh loop:
-                              for each project:
-                                move back to live
-                                clear ~/.claude/usage-data/
-                                run /insights via expect
-                                copy report.html to results/
-                                re-park
-                                       ▼
-                     ┌─────────────────────────────────────┐
-                     │  ~/insights-badger/results/         │  <- your per-project reports
-                     │    -Users-you-fintech-monorepo.html │
-                     │    -Users-you-side-project.html     │
-                     └─────────────────────────────────────┘
-```
-
-The encoded names match Claude's own convention: `/Users/you/foo` → `-Users-you-foo`. See [docs/NOTES.md](docs/NOTES.md) for the caching tradeoff (spoiler: this approach re-pays for Haiku-extracted facets each loop, but it's pennies).
+If this matters to you: see [docs/HOW.md](docs/HOW.md)
 
 ## Repo layout
 
@@ -111,7 +79,7 @@ The encoded names match Claude's own convention: `/Users/you/foo` → `-Users-yo
 insights-badger/
 ├── Readme.md
 ├── scripts/                # all the .sh and the .exp driver
-├── docs/                   # NOTES.md — origin story, caching tradeoff
+├── docs/                   # origin story, caching tradeoff, full workflow.
 ├── results/                # gitignored — your generated HTML reports land here
 └── .github/ISSUE_TEMPLATE/ # bug + feature templates
 ```
@@ -120,7 +88,7 @@ insights-badger/
 
 PRs welcome on any of these:
 
-- **Facet cache reuse.** Don't nuke `~/.claude/usage-data/facets/` between projects — facets are keyed by session ID and would be reused across loop iterations. Save Haiku tokens. See [docs/NOTES.md](docs/NOTES.md).
+- **Facet cache reuse.** Don't nuke `~/.claude/usage-data/facets/` between projects — facets are keyed by session ID and would be reused across loop iterations. Save Haiku tokens. See [docs/USAGE.md](docs/USAGE.md).
 - **Aggregate report.** Stitch every `results/*.html` into one index page with per-project tiles and rolled-up friction stats across the whole portfolio.
 - **`--project` flag stub.** A wrapper that takes a substring and behaves like `/insights --project <substring>` would, so you can stop thinking about backup/restore at all.
 - **CI mode.** Run weekly, drop reports into a dated folder, diff against last week's friction patterns. "Are we getting better or worse at working with Claude?"

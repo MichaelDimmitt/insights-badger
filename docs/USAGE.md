@@ -1,10 +1,11 @@
-## Origin of the toolkit's approach
+## Usage Budget details (Continued)
 
-The "move directories in and out of `~/.claude/projects/` to scope `/insights`" approach comes from the **"Current workaround" section** of the feature request asking for native project-scoping: [anthropics/claude-code#23762 — Current workaround](https://github.com/anthropics/claude-code/issues/23762#current-workaround). The OP describes it as:
+`/insights` runs Claude Haiku against every session to extract "facets" (qualitative tags). Because this toolkit clears the `~/.claude/usage-data/facets/` cache between every project, **every project in the loop re-pays for facet extraction from scratch** — no cross-project reuse.
 
-> Manually renaming/moving folders under `~/.claude/projects/` before running `/insights` to hide unwanted projects from the ingestion stage. This is fragile and tedious.
+Rough math: if you have N projects with ~M sessions each, expect N × M Haiku calls per full loop, where a normal `/insights` run would pay once and cache. Haiku is cheap so this is usually pennies, but if you're on a metered API plan or close to a Claude.ai subscription quota, **the loop can chew through your budget faster than you expect** — especially the first run on a fresh machine. Subsequent runs are no cheaper because the cache is wiped each time.
 
-This toolkit is the automated version of that fragile/tedious workaround. The issue was closed as a duplicate of [#23311](https://github.com/anthropics/claude-code/issues/23311), and as of writing there's still no built-in scoping flag.
+If you are on the 20$ a month plan and using opus as the model just assume your 4hr limit will get hit.
+Other than that. Enjoy 😋.
 
 ## Caching tradeoff: facets get re-extracted every run
 
