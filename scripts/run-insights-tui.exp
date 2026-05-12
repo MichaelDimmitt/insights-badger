@@ -1,5 +1,8 @@
 #!/usr/bin/env expect -f
-# Debug version — shows everything Claude prints. Run manually to see what's happening.
+# Drives Claude Code's TUI to fire /insights and waits for report.html to
+# regenerate. Full TUI output streams to your terminal so you can see what's
+# happening. Called by insights-per-project.sh and restore-one.sh, but you can
+# also run it manually against whatever's currently live in ~/.claude/projects/.
 
 set timeout 60
 set report "$env(HOME)/.claude/usage-data/report.html"

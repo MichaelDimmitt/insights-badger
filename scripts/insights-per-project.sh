@@ -28,7 +28,7 @@ if [[ ! -d "$BACKUP_PROJECTS" ]] || [[ -z "$(ls -A "$BACKUP_PROJECTS" 2>/dev/nul
 fi
 
 shopt -s nullglob
-echo "Projects to process (debug mode):"
+echo "Projects to process:"
 for d in "$BACKUP_PROJECTS"/*/; do
   echo "  $(basename "$d")"
 done
@@ -45,9 +45,9 @@ for d in "$BACKUP_PROJECTS"/*/; do
 
   before=$(stat -f "%m" "$REPORT_SRC" 2>/dev/null || echo 0)
   echo "report.html mtime before: $before"
-  echo "--- launching debug TUI driver ---"
+  echo "--- launching TUI driver ---"
   expect_rc=0
-  ~/insights-badger/run-insights-tui.exp || expect_rc=$?
+  ~/insights-badger/scripts/run-insights-tui.exp || expect_rc=$?
   [[ "$expect_rc" -ne 0 ]] && echo "  (expect exited $expect_rc)"
   after=$(stat -f "%m" "$REPORT_SRC" 2>/dev/null || echo 0)
   echo "report.html mtime after:  $after"
@@ -65,8 +65,8 @@ for d in "$BACKUP_PROJECTS"/*/; do
   if [[ "$failed" -eq 1 ]] && [[ "$STOP_ON_FAIL" == "1" ]]; then
     echo
     echo "STOP_ON_FAIL=1 — halting. Project left LIVE at $LIVE_PROJECTS/$name."
-    echo "Re-run manually with: ~/insights-badger/run-insights-tui.exp"
-    echo "Re-park everything when done: ~/insights-badger/backup-projects.sh"
+    echo "Re-run manually with: ~/insights-badger/scripts/run-insights-tui.exp"
+    echo "Re-park everything when done: ~/insights-badger/scripts/backup-projects.sh"
     exit 1
   fi
 

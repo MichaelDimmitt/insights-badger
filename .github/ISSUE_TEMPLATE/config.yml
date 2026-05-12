@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Upstream feature request — native /insights project scoping
+    url: https://github.com/anthropics/claude-code/issues/23762
+    about: This toolkit exists because /insights has no built-in project scope. 👍 the upstream issue to help make this repo obsolete.
