@@ -10,7 +10,7 @@ set -euo pipefail
 LIVE_PROJECTS="$HOME/.claude/projects"
 LIVE_USAGE="$HOME/.claude/usage-data"
 BACKUP_PROJECTS="$HOME/backup/projects"
-REPORTS="$HOME/backup/reports"
+REPORTS="$HOME/insights-badger/results"
 REPORT_SRC="$LIVE_USAGE/report.html"
 
 if [[ $# -lt 1 ]]; then
@@ -48,7 +48,6 @@ if [[ ${#matches[@]} -gt 1 ]]; then
 fi
 
 name="${matches[0]}"
-slug="${name#-}"
 
 echo "=== debug run for $name ==="
 mv "$BACKUP_PROJECTS/$name" "$LIVE_PROJECTS/$name"
@@ -64,8 +63,8 @@ after=$(stat -f "%m" "$REPORT_SRC" 2>/dev/null || echo 0)
 echo "report.html mtime after:  $after"
 
 if [[ "$after" != "$before" ]] && [[ -f "$REPORT_SRC" ]]; then
-  cp "$REPORT_SRC" "$REPORTS/report-$slug.html"
-  echo "saved $REPORTS/report-$slug.html"
+  cp "$REPORT_SRC" "$REPORTS/$name.html"
+  echo "saved $REPORTS/$name.html"
 else
   echo "report.html did NOT change"
 fi
